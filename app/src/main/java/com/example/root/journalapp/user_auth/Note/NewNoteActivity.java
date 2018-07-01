@@ -65,25 +65,11 @@ public class NewNoteActivity extends AppCompatActivity {
 
         notesDatabaseReference = FirebaseDatabase.getInstance().getReference().child("Notes").child(firebaseAuth.getCurrentUser().getUid());
 
-        FloatingActionButton fab = findViewById(R.id.saveFab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+
+        final FloatingActionButton saveFab = findViewById(R.id.saveFab);
 
 
-                String title = titleEditTet.getText().toString().trim();
-                String noteContent = notesEditText.getText().toString().trim();
-                if (!TextUtils.isEmpty(title) && !TextUtils.isEmpty(noteContent)){
-                    createNote(title,noteContent);
-                    startActivity(new Intent(NewNoteActivity.this, NotesListActivity.class));
-                }else {
-                    Snackbar.make(view, "Please fil in Empty fields", Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
-                }
 
-
-            }
-        });
 
         titleEditTet = findViewById(R.id.titleEditText);
         notesEditText = findViewById(R.id.notesEditText);
@@ -103,6 +89,33 @@ public class NewNoteActivity extends AppCompatActivity {
         Log.i(TAG, "onCreate: The note iD is "+ noteID);
 
         putData();
+        saveFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+
+                String title = titleEditTet.getText().toString().trim();
+                String noteContent = notesEditText.getText().toString().trim();
+                if (!TextUtils.isEmpty(title) && !TextUtils.isEmpty(noteContent)){
+                    createNote(title,noteContent);
+                    startActivity(new Intent(NewNoteActivity.this, NotesListActivity.class));
+                }else {
+                    Snackbar.make(view, "Please fil in Empty fields", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                }
+
+
+            }
+        });
+//        FloatingActionButton addFab = findViewById(R.id.addFab);
+//        {
+//            addFab.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    saveFab.setVisibility(View.VISIBLE);
+//                }
+//            });
+//        }
     }
 
     private void putData(){

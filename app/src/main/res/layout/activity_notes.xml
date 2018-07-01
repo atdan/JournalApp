@@ -22,12 +22,43 @@
 
     <include layout="@layout/content_notes" />
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/saveFab"
+    <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@android:drawable/ic_menu_save" />
+        >
+
+        <!--<android.support.design.widget.FloatingActionButton-->
+            <!--android:id="@+id/addFab"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_alignParentBottom="true"-->
+            <!--android:layout_alignParentEnd="true"-->
+            <!--android:drawingCacheQuality="high"-->
+            <!--android:src="@drawable/ic_add_black_24dp"-->
+            <!--app:backgroundTint="@color/cardview_light_background"-->
+            <!--app:fabSize="normal"-->
+            <!--app:rippleColor="@color/colorPrimary" />-->
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/saveFab"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="@dimen/fab_margin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_marginBottom="12dp"
+            android:layout_alignParentBottom="true"
+            app:fabSize="normal"
+            android:src="@drawable/ic_save_black_24dp" />
+
+        <!--<android.support.design.widget.FloatingActionButton-->
+            <!--android:id="@+id/addPicFab"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_alignParentEnd="true"-->
+            <!--android:layout_centerVertical="true"-->
+            <!--app:fabSize="normal" />-->
+    </RelativeLayout>
+
 
 </android.support.design.widget.CoordinatorLayout>

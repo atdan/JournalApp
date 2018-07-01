@@ -1,8 +1,13 @@
 package com.example.root.journalapp.user_auth;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -27,10 +32,17 @@ import com.google.firebase.auth.GoogleAuthProvider;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final int RC_SIGN_IN = 1;
+    private static final int RC_SIGN_IN = 12343;
     private static final String TAG = "MainActivity";
     private GoogleApiClient mGoogleApiClient;
     private FirebaseAuth mAuth;
+    private String googleUserName;
+    private String googleUserMail;
+    private static final int REQ_ID = 9001;
+
+    SignInButton googleSignInBtn;
+    GoogleSignInOptions googleSignInOptions;
+
 
     private FirebaseAuth.AuthStateListener authStateListener;
 
@@ -46,36 +58,45 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
 
-                if (firebaseAuth.getCurrentUser() != null){
+                if (firebaseAuth.getCurrentUser() != null) {
                     Intent intent = new Intent(MainActivity.this, NotesListActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK
+                            | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);
                 }
             }
         };
 
-
-        SignInButton googleSignInBtn = findViewById(R.id.google_sign_in_btn);
-
-        GoogleSignInOptions googleSignInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+        googleSignInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
+
+        googleSignInBtn = findViewById(R.id.google_sign_in_btn);
+
 
         mGoogleApiClient = new GoogleApiClient.Builder(getApplicationContext())
                 .enableAutoManage(this, new GoogleApiClient.OnConnectionFailedListener() {
                     @Override
                     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
-                        Toast.makeText(MainActivity.this,"Error signing in",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "Error signing in", Toast.LENGTH_SHORT).show();
                     }
-                }).addApi(Auth.GOOGLE_SIGN_IN_API,googleSignInOptions)
-                  .build();
+                }).addApi(Auth.GOOGLE_SIGN_IN_API, googleSignInOptions)
+                .build();
 
         googleSignInBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                signIn();
+                ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                assert connectivityManager != null;
+                NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+                boolean isConnected = networkInfo != null && networkInfo.isConnectedOrConnecting();
+                if (!isConnected) {
+                    Snackbar.make(v, "Please Connect to Internet", Snackbar.LENGTH_LONG).show();
+                } else {
+                    signIn();
+                }
             }
         });
     }
@@ -89,25 +110,35 @@ public class MainActivity extends AppCompatActivity {
 
     private void signIn() {
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
-        signInIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        signInIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+//        callbackManager.onActivityResult(requestCode, resultCode, data);
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
-        if (requestCode == RC_SIGN_IN) {
+        if (requestCode == RC_SIGN_IN && resultCode == Activity.RESULT_OK) {
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
-            if (result.isSuccess()){
+
+
+            if (result.isSuccess()) {
                 //Google signin was successfull, authenticate with firebase
                 GoogleSignInAccount account = result.getSignInAccount();
-                firebaseAuthWithGoogle(account);
-            }else {
+
+                if (account != null) {
+                    googleUserName = account.getDisplayName();
+                    googleUserMail = account.getEmail();
+                    firebaseAuthWithGoogle(account);
+                }
+            } else {
                 //google signin was unsuccessful
-                Toast.makeText(this,"Google sign in was unsuccessful",Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Google sign in was unsuccessful", Toast.LENGTH_LONG).show();
             }
+
+
         }
     }
 
@@ -121,8 +152,8 @@ public class MainActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (!task.isSuccessful()) {
                             // If sign in fails, display a message to the user.
-                            Log.w(TAG, "signInWithCredential:failure", task.getException());
-                            Toast.makeText(MainActivity.this,"Authentication failed",Toast.LENGTH_LONG).show();
+                            Log.d(TAG, "signInWithCredential:failure", task.getException());
+                            Toast.makeText(MainActivity.this, "Authentication failed", Toast.LENGTH_LONG).show();
                         }
 
                         // ...
@@ -131,6 +162,19 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onPause() {
+        if (mAuth != null)
+            mAuth.removeAuthStateListener(authStateListener);
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        if (mAuth != null)
+            mAuth.addAuthStateListener(authStateListener);
+        super.onResume();
+    }
 
 
 //    @Override

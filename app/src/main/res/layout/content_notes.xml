@@ -34,6 +34,7 @@
             android:layout_margin="8dp"
             android:id="@+id/notesEditText"
             android:ems="10"
+            android:fitsSystemWindows="true"
             android:hint="Type in your notes"/>
     </LinearLayout>
 

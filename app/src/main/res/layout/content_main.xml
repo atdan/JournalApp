@@ -8,6 +8,16 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".user_auth.MainActivity"
     tools:showIn="@layout/activity_main">
+    <TextView
+        android:gravity="center_horizontal"
+        android:layout_centerHorizontal="true"
+        android:textSize="100sp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textStyle="italic"
+        android:fontFamily="sans-serif"
+        android:text="Journal"
+        android:textColor="#fff"/>
 
     <com.google.android.gms.common.SignInButton
         android:elevation="3dp"
